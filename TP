@@ -1,0 +1,119 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class TypigSoft : MonoBehaviour
+{
+    //問題文をランダムで出力させる
+    private string[] qj = {"問題","テスト","目的地","土地" };
+    private string[] qr = { "monndai","tesuto","mokutekiti","toti" };
+    private Text UIJ;
+    private Text UIR;
+    private string nQJ;
+    private string nQR;
+    private int numberOfQuestion;
+
+    //キーボード入力と答えがあっているかどうかの確認
+    private int indexOfString;
+
+    //正解時の処理
+    private Text UII;
+    private int correctN;
+    private Text UIcorrectA;
+    private string correctString;
+
+    //失敗時の処理
+    private int mistakeN;
+    private Text UImistake;
+
+    //正解率の計算
+    private float correctAR;
+    private Text UIcorrectAR;
+
+    Rigidbody2D rigidbody2;
+    // Start is called before the first frame update
+    void Start()
+    {
+        UIJ = transform.Find("InputPanel/QuestionJ").GetComponent<Text>();
+        UIR=transform.Find("InputPanel/QuestionR").GetComponent <Text>();
+        UII = transform.Find("InputPanel/Input").GetComponent<Text>();
+        UIcorrectA = transform.Find("DatePanel/CorrectAnswer").GetComponent<Text>();
+        UImistake = transform.Find("DatePanel/Mistake").GetComponent<Text>();
+        UIcorrectAR = transform.Find("DatePanel/CorrectAnswerRate").GetComponent<Text>();
+
+        correctN = 0;
+        UIcorrectA.text ="正解率 :"+" "+correctN.ToString();
+        mistakeN = 0;
+        UImistake.text="不正解率 : "+mistakeN.ToString();
+        correctAR = 0;
+        UIcorrectAR.text = "正解率 : " +correctAR.ToString();
+
+        OutputQ();
+
+
+    }
+    void OutputQ()
+    {
+        UIJ.text = "";
+        UIR.text = "";
+        UII.text = "";
+
+        correctString = "";
+        indexOfString = 0;
+
+        numberOfQuestion = Random.Range(0, qj.Length);
+
+        nQJ = qj[numberOfQuestion];
+        nQR = qr[numberOfQuestion];
+        UIJ.text = nQJ;
+        UIR.text = nQR;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(nQR[indexOfString].ToString()))
+        {
+            Correct();
+            if(indexOfString>=nQR.Length)
+            {
+                OutputQ();
+            }
+        } else if (Input.anyKeyDown)
+            {
+                Mistake();
+            }
+    }
+    void Correct()
+    {
+        correctN++;
+        UIcorrectA.text="正解率 :"+" "+correctN.ToString();
+
+        CorrectAnswerRate();
+
+        correctString += nQR[indexOfString].ToString();
+        UII.text = correctString;
+
+        indexOfString++;
+    }
+    void Mistake()
+    {
+        mistakeN += Input.inputString.Length;
+        UImistake.text="不正解率 : "+mistakeN.ToString();
+
+        CorrectAnswerRate();
+
+        if (Input.inputString != "")
+        {
+            UII.text=correctString + "<color=#ff0000ff>"+Input.inputString+"</color>";
+        }
+    }
+    void CorrectAnswerRate()
+    {
+        correctAR=100f*correctN/(correctN+mistakeN);
+        UIcorrectAR.text = "正解率 : "+correctAR.ToString("0.00");
+    }
+}
